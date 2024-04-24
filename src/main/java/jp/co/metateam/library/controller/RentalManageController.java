@@ -10,6 +10,18 @@ import jp.co.metateam.library.service.RentalManageService;
 import jp.co.metateam.library.service.StockService;
 import lombok.extern.log4j.Log4j2;
 
+import java.util.List;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import jakarta.validation.Valid;
+import jp.co.metateam.library.model.RentalManage;
+import jp.co.metateam.library.model.RentalManageDto;
+import org.springframework.web.bind.annotation.PathVariable;
+import jp.co.metateam.library.model.Account;
+import jp.co.metateam.library.model.Stock;
+import jp.co.metateam.library.values.RentalStatus;
 /**
  * 貸出管理関連クラスß
  */
@@ -37,14 +49,55 @@ public class RentalManageController {
      * @param model
      * @return
      */
-    @GetMapping("/rental/index")
+    //変更①
+     @GetMapping("/rental/index")
     public String index(Model model) {
-        // 貸出管理テーブルから全件取得
+        // 貸出管理テーブルから全件取得　変更点
+        List<RentalManage> rentalManageList = this.rentalManageService.findAll();
 
         // 貸出一覧画面に渡すデータをmodelに追加
+        model.addAttribute("rentalManageList", rentalManageList);
 
         // 貸出一覧画面に遷移
-        return "";
+        return "/rental/index";
+    }
+    //変更②
+    @PostMapping("/rental/add")
+    public String save(@Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra) {
+        try {
+            if (result.hasErrors()) {
+                throw new Exception("Validation error.");
+            }
+            // 登録処理
+            this.rentalManageService.save(rentalManageDto);
+
+            return "redirect:/rental/index";
+        } catch (Exception e) {
+            log.error(e.getMessage());
+
+            ra.addFlashAttribute("rentalManageDto", rentalManageDto);
+            ra.addFlashAttribute("org.springframework.validation.BindingResult.RentalManageDto", result);
+
+            return "redirect:/rental/add";
+        }
+    }
+
+    @GetMapping("/rental/add")
+    public String add(Model model) {
+      //　社員番号のデータを取得するコード
+      List<Account> accountList = this.accountService.findAll();
+      List<Stock> StockList = this.stockService.findStockAvailableAll();
+
+        model.addAttribute("accounts", accountList);
+        model.addAttribute("stockList", StockList);
+
+        model.addAttribute("rentalStatus", RentalStatas.values());
+
+        if (!model.containsAttribute("rentalManageDto")) {
+            model.addAttribute("rentalManageDto", new RentalManageDto());
+        }
+
+        return "/rental/add";
     }
 
 }
