@@ -77,7 +77,7 @@ public class RentalManageController {
     @GetMapping("/rental/add")
     public String add(Model model, @ModelAttribute RentalManageDto rentalManageDto) {
         List<Account> accounts = this.accountService.findAll();
-        List<Stock> stockList = this.stockService.findAll();
+        List<Stock> stockList = this.stockService.findStockAvailableAll();
 
         model.addAttribute("accounts", accounts);
         model.addAttribute("stockList", stockList);
@@ -95,20 +95,23 @@ public class RentalManageController {
             RedirectAttributes ra, Model model) {
         try {
             String stockId = rentalManageDto.getStockId();
+            Integer status = rentalManageDto.getStatus();
 
             Long rentalSum2 = this.rentalManageService.countByStatusAndNotIdAdd(stockId);
+            if (status == 0 || status == 1) {
+                if (!(rentalSum2 == 0)) {
+                    Date expectedRentalOn = rentalManageDto.getExpectedRentalOn();
+                    Date expectedReturnOn = rentalManageDto.getExpectedReturnOn();
+                    Long rentalNum2 = this.rentalManageService
+                            .countByStatusAndExpectedReturnBeforeAndNotIdAdd(expectedRentalOn, expectedReturnOn,
+                                    stockId);
 
-            if (!(rentalSum2 == 0)) {
-                Date expectedRentalOn = rentalManageDto.getExpectedRentalOn();
-                Date expectedReturnOn = rentalManageDto.getExpectedReturnOn();
-                Long rentalNum2 = this.rentalManageService
-                        .countByStatusAndExpectedReturnBeforeAndNotIdAdd(expectedRentalOn, expectedReturnOn, stockId);
+                    if (!(rentalSum2 == rentalNum2)) {
+                        rentalError2 = "この期間は貸出できません";
+                        result.addError(new FieldError("rentalManageDto", "expectedRentalOn", rentalError2));
+                        result.addError(new FieldError("rentalManageDto", "expectedReturnOn", rentalError2));
 
-                if (!(rentalSum2 == rentalNum2)) {
-                    rentalError2 = "この期間は貸出できません";
-                    result.addError(new FieldError("rentalManageDto", "expectedRentalOn", rentalError2));
-                    result.addError(new FieldError("rentalManageDto", "expectedReturnOn", rentalError2));
-
+                    }
                 }
             }
             if (result.hasErrors()) {
