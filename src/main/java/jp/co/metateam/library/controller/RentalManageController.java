@@ -42,8 +42,8 @@ public class RentalManageController {
     private final RentalManageService rentalManageService;
     private final StockService stockService;
     // 追加
-    private String rentalError;
-    private String rentalError2;
+    private String rentalErrorEdit;
+    private String rentalErrorAdd;
 
     @Autowired
     public RentalManageController(BookMstService bookMstService,
@@ -97,19 +97,19 @@ public class RentalManageController {
             String stockId = rentalManageDto.getStockId();
             Integer status = rentalManageDto.getStatus();
 
-            Long rentalSum2 = this.rentalManageService.countByStatusAndNotIdAdd(stockId);
+            Long rentalSumAdd = this.rentalManageService.countByStatusAndNotIdAdd(stockId);
             if (status == 0 || status == 1) {
-                if (!(rentalSum2 == 0)) {
+                if (!(rentalSumAdd == 0)) {
                     Date expectedRentalOn = rentalManageDto.getExpectedRentalOn();
                     Date expectedReturnOn = rentalManageDto.getExpectedReturnOn();
-                    Long rentalNum2 = this.rentalManageService
+                    Long rentalNumAdd = this.rentalManageService
                             .countByStatusAndExpectedReturnBeforeAndNotIdAdd(expectedRentalOn, expectedReturnOn,
                                     stockId);
 
-                    if (!(rentalSum2 == rentalNum2)) {
-                        rentalError2 = "この期間は貸出できません";
-                        result.addError(new FieldError("rentalManageDto", "expectedRentalOn", rentalError2));
-                        result.addError(new FieldError("rentalManageDto", "expectedReturnOn", rentalError2));
+                    if (!(rentalSumAdd == rentalNumAdd)) {
+                        rentalErrorAdd = "この期間は貸出できません";
+                        result.addError(new FieldError("rentalManageDto", "expectedRentalOn", rentalErrorAdd));
+                        result.addError(new FieldError("rentalManageDto", "expectedReturnOn", rentalErrorAdd));
 
                     }
                 }
@@ -183,28 +183,20 @@ public class RentalManageController {
 
             });
 
-            // 変更前の貸出情報取得 rentalManageServiceを使う
-
-            // →上記を利用して貸出待ち→返却済みなどの変更チェック（貸出ステータス）
-            // 変更前の貸出情報を取得 教えてもらったとこここから
-
             String stockId = rentalManageDto.getStockId();
 
-            // 貸出ステータスのチェック→RentalManageDTO使う→ここで呼び出し もう済み？
-            // 貸出可否→比較する文リポジトリ→サービスでチェック→ここで呼び出し
+            Long rentalSumEdit = this.rentalManageService.countByStatusAndNotId(Long.parseLong(id), stockId);
 
-            Long rentalSum = this.rentalManageService.countByStatusAndNotId(Long.parseLong(id), stockId);
-
-            if (!(rentalSum == 0)) {
+            if (!(rentalSumEdit == 0)) {
                 Date expectedRentalOn = rentalManageDto.getExpectedRentalOn();
                 Date expectedReturnOn = rentalManageDto.getExpectedReturnOn();
                 Long rentalNum = this.rentalManageService.countByStatusAndExpectedReturnBeforeAndNotId(expectedRentalOn,
                         expectedReturnOn, Long.parseLong(id), stockId);
 
-                if (!(rentalSum == rentalNum)) {
-                    rentalError = "この期間は貸出できません";
-                    result.addError(new FieldError("rentalManage", "expectedRentalOn", rentalError));
-                    result.addError(new FieldError("rentalManage", "expectedReturnOn", rentalError));
+                if (!(rentalSumEdit == rentalNum)) {
+                    rentalErrorEdit = "この期間は貸出できません";
+                    result.addError(new FieldError("rentalManage", "expectedRentalOn", rentalErrorEdit));
+                    result.addError(new FieldError("rentalManage", "expectedReturnOn", rentalErrorEdit));
 
                 }
             }
@@ -235,13 +227,6 @@ public class RentalManageController {
             // データを表示 別
             ra.addFlashAttribute("rentalManage", rentalManageData);
             ra.addFlashAttribute("org.springframework.validation.BindingResult.rentalManage", result);
-
-            List<Account> accounts = this.accountService.findAll();
-            List<Stock> stockList = this.stockService.findStockAvailableAll();
-
-            model.addAttribute("accounts", accounts);
-            model.addAttribute("stockList", stockList);
-            model.addAttribute("rentalStatus", RentalStatus.values());
 
             return String.format("redirect:/rental/%s/edit", id);
         }
