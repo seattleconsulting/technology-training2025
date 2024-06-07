@@ -105,7 +105,7 @@ public class RentalManageService {
 
     // 更新
     @Transactional
-    public void update(Long id, RentalManageDto rentalManageDto) throws Exception {
+    public void update(Long id, RentalManageDto rentalManageDto, RentalManage rentalManage) throws Exception {
         try {
             // 既存レコード取得
             RentalManage updateTargetRental = this.rentalManageRepository.findById(id).orElse(null);
@@ -121,6 +121,8 @@ public class RentalManageService {
             if (stock == null) {
                 throw new Exception("Stock not found.");
             }
+            //追加部分（rentalがデータに入る）
+            rentalManage = setRentalStatusDate(rentalManage, rentalManageDto.getStatus());
 
             updateTargetRental.setId(rentalManageDto.getId());
             updateTargetRental.setAccount(account);

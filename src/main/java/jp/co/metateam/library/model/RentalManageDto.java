@@ -1,6 +1,8 @@
 package jp.co.metateam.library.model;
  
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
  
 import org.springframework.format.annotation.DateTimeFormat;
@@ -66,4 +68,23 @@ public class RentalManageDto {
    
 }
 
+    //日付チェック
+    public String isDateError(RentalManage rentalManage, RentalManageDto rentalManageDto) {
+        LocalDate nowDate = LocalDate.now(ZoneId.of("Asia/Tokyo"));
+
+        //古いステータスと新しいステータス
+        Integer preStatus = rentalManage.getStatus();
+        Integer postStatus = rentalManageDto.getStatus();
+
+        //両予定日をLocalDate型に変換
+        LocalDate expectedRentalOn = rentalManageDto.getExpectedRentalOn().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        //if文・貸出待ち→貸出中
+        if(preStatus == 0 && postStatus == 1) {
+            if(!expectedRentalOn.equals(nowDate)) {
+                return "現在の日付を選択してください";
+            }
+        }
+        return null;
+    }
 }
