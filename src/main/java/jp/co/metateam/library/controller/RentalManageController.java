@@ -183,22 +183,34 @@ public class RentalManageController {
 
             });
 
+            Integer status = rentalManageDto.getStatus();
+
             String stockId = rentalManageDto.getStockId();
 
             Long rentalSumEdit = this.rentalManageService.countByStatusAndNotId(Long.parseLong(id), stockId);
 
-            if (!(rentalSumEdit == 0)) {
-                Date expectedRentalOn = rentalManageDto.getExpectedRentalOn();
-                Date expectedReturnOn = rentalManageDto.getExpectedReturnOn();
-                Long rentalNum = this.rentalManageService.countByStatusAndExpectedReturnBeforeAndNotId(expectedRentalOn,
-                        expectedReturnOn, Long.parseLong(id), stockId);
+            if (status == 0 || status == 1) {
+                if (!(rentalSumEdit == 0)) {
+                    Date expectedRentalOn = rentalManageDto.getExpectedRentalOn();
+                    Date expectedReturnOn = rentalManageDto.getExpectedReturnOn();
+                    Long rentalNum = this.rentalManageService.countByStatusAndExpectedReturnBeforeAndNotId(
+                            expectedRentalOn,
+                            expectedReturnOn, Long.parseLong(id), stockId);
 
-                if (!(rentalSumEdit == rentalNum)) {
-                    rentalErrorEdit = "この期間は貸出できません";
-                    result.addError(new FieldError("rentalManage", "expectedRentalOn", rentalErrorEdit));
-                    result.addError(new FieldError("rentalManage", "expectedReturnOn", rentalErrorEdit));
+                    if (!(rentalSumEdit == rentalNum)) {
+                        rentalErrorEdit = "この期間は貸出できません";
+                        result.addError(new FieldError("rentalManage", "expectedRentalOn", rentalErrorEdit));
+                        result.addError(new FieldError("rentalManage", "expectedReturnOn", rentalErrorEdit));
 
+                    }
                 }
+            }
+
+            // 日付チェック
+            String DateError = rentalManageDto.isDateError(rentalManage, rentalManageDto);
+            if (DateError != null) {
+                result.addError(new FieldError("rentalManageDto", "expectedRentalOn", DateError));
+                throw new RuntimeException();
             }
 
             if (result.hasErrors()) {
@@ -206,7 +218,7 @@ public class RentalManageController {
             }
 
             // 更新処理
-            this.rentalManageService.update(Long.valueOf(id), rentalManageDto);
+            this.rentalManageService.update(Long.valueOf(id), rentalManageDto, rentalManage);
 
             return "redirect:/rental/index";
         } catch (Exception e) {
