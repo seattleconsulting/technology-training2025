@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import jp.co.metateam.library.model.Stock;
 
-import java.sql.Date; 
+import java.sql.Date;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
@@ -25,7 +25,6 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
   List<Stock> findByBookMstIdAndStatus(Long book_id, Integer status);
 
   // 書籍ごとの総利用可能在庫取得→①ループの中でセットしていく②カウントして日付ごとの在庫数を表示させる際に使用
-
   // リスト
 
   @Query("SELECT s " +
@@ -62,7 +61,6 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
   int borrowingBook(Date day, Long id);
 
   // 日付ごとの貸出不可の在庫管理番号取得
-
   // リスト
 
   @Query("SELECT DISTINCT s " +
