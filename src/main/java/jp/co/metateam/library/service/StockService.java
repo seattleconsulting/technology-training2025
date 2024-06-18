@@ -18,6 +18,7 @@ import jp.co.metateam.library.model.StockDto;
 import jp.co.metateam.library.repository.BookMstRepository;
 import jp.co.metateam.library.repository.StockRepository;
 
+import java.sql.Date; 
 @Service
 public class StockService {
     private final BookMstRepository bookMstRepository;
@@ -47,6 +48,37 @@ public class StockService {
     public Stock findById(String id) {
         return this.stockRepository.findById(id).orElse(null);
     }
+
+    // 在庫カレンダーデータ取得 
+    // 書籍名取得 
+    @Transactional 
+    public List<BookMst> bookTitle() { 
+        return this.bookMstRepository.bookTitle(); 
+    } 
+
+    // 書籍ごと総利用可能在庫取得 
+    @Transactional 
+    public List<Stock> bookStockAvailable(Long id) { 
+        return this.stockRepository.bookStockAvailable(id); 
+    } 
+
+    // 書籍ごと利用不可能在庫数取得（貸出待ち） 
+    @Transactional 
+    public int borrowingWaitBook(Date day, Long id) { 
+        return this.stockRepository.borrowingWaitBook(day, id); 
+    } 
+
+    // 書籍ごと利用不可能在庫数取得（貸出中） 
+    @Transactional 
+    public int borrowingBook(Date day, Long id) { 
+        return this.stockRepository.borrowingBook(day, id); 
+    } 
+
+    //書籍ごと利用可能在庫番号取得 
+    @Transactional 
+    public List<Stock> lendableBook(Date choiceDate, Long id) { 
+        return this.stockRepository.lendableBook(choiceDate, id); 
+    } 
 
     @Transactional 
     public void save(StockDto stockDto) throws Exception {
@@ -105,19 +137,107 @@ public class StockService {
         return daysOfWeek;
     }
 
-    public List<String> generateValues(Integer year, Integer month, Integer daysInMonth) {
-        // FIXME ここで各書籍毎の日々の在庫を生成する処理を実装する
-        // FIXME ランダムに値を返却するサンプルを実装している
-        String[] stockNum = {"1", "2", "3", "4", "×"};
-        Random rnd = new Random();
-        List<String> values = new ArrayList<>();
-        values.add("スッキリわかるJava入門 第4版"); // 対象の書籍名
-        values.add("10"); // 対象書籍の在庫総数
-        
-        for (int i = 1; i <= daysInMonth; i++) {
-            int index = rnd.nextInt(stockNum.length);
-            values.add(stockNum[index]);
-        }
-        return values;
-    }
-}
+    public List<List<String>> generateValues(Integer year, Integer month, Integer daysInMonth) { 
+        // データの取得 
+        List<BookMst> bookTitleId = this.bookTitle(); 
+
+        int titleCount = bookTitleId.size(); 
+
+        List<String> titleArray = new ArrayList<>(); 
+
+        for (BookMst titleList : bookTitleId) { 
+            titleArray.add(titleList.getTitle()); 
+        } 
+
+        List<Long> idArray = new ArrayList<>(); 
+
+        for (BookMst idList : bookTitleId) { 
+            idArray.add(idList.getId()); 
+        } 
+
+        List<String> availableArray = new ArrayList<>(); 
+        List<String> dayStockArray = new ArrayList<>(); 
+        List<String> availableStockList = new ArrayList<>(); 
+
+        for (Long id : idArray) { 
+            List<Stock> StockAvailable = this.bookStockAvailable(id); 
+            int stockCount = StockAvailable.size(); 
+            String stockCountString = String.valueOf(stockCount); 
+            availableArray.add(stockCountString); 
+
+            // List<String> dayStockInnerArray = new ArrayList<>(); 
+            for (int dayOfMonth = 1; dayOfMonth <= daysInMonth; dayOfMonth++) { 
+                LocalDate localDate = LocalDate.of(year, month, dayOfMonth); 
+                java.sql.Date day = java.sql.Date.valueOf(localDate); 
+
+                int borrowingWaitBook = this.borrowingWaitBook(day, id); 
+                int borrowingBook = this.borrowingBook(day, id); 
+                int dayStockCount = stockCount - (borrowingWaitBook + borrowingBook); 
+                String dayStockCountString = String.valueOf(dayStockCount); 
+
+                if (dayStockCountString.equals("0")) { 
+                    dayStockCountString = "×"; 
+                } 
+
+                /*List<Long> availableList = lendableBook(day, id); 
+                for (Long LongList : availableList) { 
+                    availableStockList.add(String.valueOf(LongList)); 
+                }*/ 
+
+                dayStockArray.add(dayStockCountString); 
+            } 
+            // dayStockArray.add(dayStockInnerArray.get()); 
+        } 
+
+        // List <Stock> lendableBook = this.lendableBook(choiceDate, choiceId); 
+        List<List<String>> bigValues = new ArrayList<>(); 
+
+        // FIXME ここで各書籍毎の日々の在庫を生成する処理を実装する 
+        // FIXME ランダムに値を返却するサンプルを実装している 
+
+        /* 
+         * String[] stockNum = {"1", "2", "3", "4", "×"}; 
+         * Random rnd = new Random(); 
+         */ 
+
+        int roopCount = 0; 
+
+        for (int i = 0; i < titleCount; i++) { 
+            List<String> values = new ArrayList<>(); 
+
+            values.add(titleArray.get(i)); // 対象の書籍名 
+            values.add(availableArray.get(i)); // 対象書籍の在庫総数 
+
+            for (int j = 1; j <= daysInMonth; j++) { 
+                values.add(dayStockArray.get(roopCount)); 
+                roopCount++; 
+            } 
+            bigValues.add(values); 
+        } 
+        return bigValues; 
+    } 
+
+
+    // 貸出登録画面に遷移する際に在庫管理番号を渡すメソッド 
+    public List<Stock> availableStockValues(java.sql.Date choiceDate, Integer title) { 
+
+        //LocalDate localDate = LocalDate.of(year, month, day); 
+        //java.sql.Date choiceDate = java.sql.Date.valueOf(localDate); 
+
+        Long id = Long.valueOf(title + 1); 
+
+        List<Stock> availableList = lendableBook(choiceDate, id); 
+        List<Stock> StockAvailable = this.bookStockAvailable(id); 
+
+        StockAvailable.removeAll(availableList);      
+
+        /*for (Long LongList : availableList) { 
+            availableStockList.add(String.valueOf(LongList)); 
+        }*/ 
+
+        return StockAvailable; 
+    } 
+
+} 
+
+ 
