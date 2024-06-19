@@ -82,38 +82,25 @@ public class RentalManageController {
             @RequestParam(value = "year", required = false) Integer year,
             @RequestParam(value = "month", required = false) Integer month,
             @RequestParam(value = "day", required = false) Integer day,
-            @RequestParam(value = "title", required = false) Integer title) {
+            @RequestParam(value = "title", required = false) String title) {
         List<Account> accounts = this.accountService.findAll();
         List<Stock> stockList = this.stockService.findStockAvailableAll();
+        model.addAttribute("accounts", accounts);
+        model.addAttribute("rentalStatus", RentalStatus.values());
 
         if (year != null && month != null && day != null && title != null) {
             LocalDate localDate = LocalDate.of(year, month, day);
             java.sql.Date choiceDate = java.sql.Date.valueOf(localDate);
             List<Stock> availableStock = this.stockService.availableStockValues(choiceDate, title);
+            
             model.addAttribute("stockList", availableStock);
-
-            rentalManageDto.setId(null);
-            rentalManageDto.setEmployeeId(null);
-            rentalManageDto.setExpectedRentalOn(null);
-            rentalManageDto.setExpectedReturnOn(null);
-            rentalManageDto.setStockId(null);
-            rentalManageDto.setStatus(null);
-            rentalManageDto.setExpectedRentalOn(choiceDate);
-
             model.addAttribute("rentalManageDto", rentalManageDto);
+            rentalManageDto.setExpectedRentalOn(choiceDate);
 
         } else {
 
-            model.addAttribute("accounts", accounts);
             model.addAttribute("stockList", stockList);
-            model.addAttribute("rentalStatus", RentalStatus.values());
-
-        }
-
-        if (!model.containsAttribute("rentalManageDto")) {
-
             model.addAttribute("rentalManageDto", new RentalManageDto());
-
         }
 
         return "rental/add";

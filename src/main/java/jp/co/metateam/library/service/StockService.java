@@ -59,8 +59,8 @@ public class StockService {
 
     // 書籍ごと総利用可能在庫取得
     @Transactional
-    public List<Stock> bookStockAvailable(Long id) {
-        return this.stockRepository.bookStockAvailable(id);
+    public List<Stock> bookStockAvailable(String title) {
+        return this.stockRepository.bookStockAvailable(title);
     }
 
     // 書籍ごと利用不可能在庫数取得（貸出待ち）
@@ -77,8 +77,8 @@ public class StockService {
 
     // 書籍ごと利用可能在庫番号取得
     @Transactional
-    public List<Stock> lendableBook(Date choiceDate, Long id) {
-        return this.stockRepository.lendableBook(choiceDate, id);
+    public List<Stock> lendableBook(Date choiceDate, String title) {
+        return this.stockRepository.lendableBook(choiceDate, title);
     }
 
     @Transactional
@@ -140,25 +140,18 @@ public class StockService {
 
     public List<List<String>> generateValues(Integer year, Integer month, Integer daysInMonth) {
         // データの取得
-        List<BookMst> bookTitleId = this.bookTitle();
-        int titleCount = bookTitleId.size();
+        List<BookMst> bookTitleIds = this.bookTitle();
+        int titleCount = bookTitleIds.size();
         List<String> titleArray = new ArrayList<>();
-
-        for (BookMst titleList : bookTitleId) {
-            titleArray.add(titleList.getTitle());
-        }
-
         List<Long> idArray = new ArrayList<>();
-
-        for (BookMst idList : bookTitleId) {
-            idArray.add(idList.getId());
-        }
-
         List<String> availableArray = new ArrayList<>();
         List<String> dayStockArray = new ArrayList<>();
 
-        for (Long id : idArray) {
-            List<Stock> StockAvailable = this.bookStockAvailable(id);
+        for (BookMst bookList : bookTitleIds) {
+            titleArray.add(bookList.getTitle());
+            idArray.add(bookList.getId());
+ 
+            List<Stock> StockAvailable = this.bookStockAvailable(bookList.getTitle());
             int stockCount = StockAvailable.size();
             String stockCountString = String.valueOf(stockCount);
             availableArray.add(stockCountString);
@@ -167,8 +160,8 @@ public class StockService {
                 LocalDate localDate = LocalDate.of(year, month, dayOfMonth);
                 java.sql.Date day = java.sql.Date.valueOf(localDate);
 
-                int borrowingWaitBook = this.borrowingWaitBook(day, id);
-                int borrowingBook = this.borrowingBook(day, id);
+                int borrowingWaitBook = this.borrowingWaitBook(day, bookList.getId());
+                int borrowingBook = this.borrowingBook(day, bookList.getId());
                 int dayStockCount = stockCount - (borrowingWaitBook + borrowingBook);
                 String dayStockCountString = String.valueOf(dayStockCount);
 
@@ -200,12 +193,10 @@ public class StockService {
     }
 
     // 貸出登録画面に遷移する際に在庫管理番号を渡すメソッド
-    public List<Stock> availableStockValues(java.sql.Date choiceDate, Integer title) {
+    public List<Stock> availableStockValues(java.sql.Date choiceDate, String title) {
 
-        Long id = Long.valueOf(title + 1);
-
-        List<Stock> availableList = lendableBook(choiceDate, id);
-        List<Stock> StockAvailable = this.bookStockAvailable(id);
+        List<Stock> availableList = lendableBook(choiceDate, title);
+        List<Stock> StockAvailable = this.bookStockAvailable(title);
 
         StockAvailable.removeAll(availableList);
 

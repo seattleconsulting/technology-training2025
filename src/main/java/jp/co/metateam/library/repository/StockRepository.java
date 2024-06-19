@@ -30,9 +30,9 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
   @Query("SELECT s " +
       "FROM Stock s " +
       "WHERE s.status = 0 " +
-      "AND s.bookMst.id = ?1 " +
+      "AND s.bookMst.title = ?1 " +
       "AND deletedAt IS null")
-  List<Stock> bookStockAvailable(Long id);
+  List<Stock> bookStockAvailable(String title);
 
   // 日付ごとの在庫数を表示させる際に使用（貸出待ち）
 
@@ -67,9 +67,9 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
       "FROM Stock s " +
       "LEFT OUTER JOIN RentalManage rm ON s.id = rm.stock.id " +
       "WHERE ?1 BETWEEN rm.expectedRentalOn AND rm.expectedReturnOn " +
-      "AND s.bookMst.id = ?2 " +
+      "AND s.bookMst.title = ?2 " +
       "AND s.status = 0 " +
       "AND deletedAt IS null")
-  List<Stock> lendableBook(Date choiceDate, Long id);
+  List<Stock> lendableBook(Date choiceDate, String title);
 
 }
