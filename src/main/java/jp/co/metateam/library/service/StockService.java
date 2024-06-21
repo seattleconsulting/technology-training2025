@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
+import jp.co.metateam.library.model.RentalManage;
 import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.model.StockDto;
 import jp.co.metateam.library.repository.BookMstRepository;
@@ -71,8 +72,8 @@ public class StockService {
 
     // 書籍ごと利用不可能在庫数取得（貸出中）
     @Transactional
-    public int borrowingBook(Date day, Long id) {
-        return this.stockRepository.borrowingBook(day, id);
+    public int borrowingBook(Date day, Long bookId) {
+        return this.stockRepository.borrowingBook(day, bookId); 
     }
 
     // 書籍ごと利用可能在庫番号取得
@@ -152,6 +153,7 @@ public class StockService {
             idArray.add(bookList.getId());
  
             List<Stock> StockAvailable = this.bookStockAvailable(bookList.getTitle());
+            //List<Stock> StockId = StockAvailable.getId();
             int stockCount = StockAvailable.size();
             String stockCountString = String.valueOf(stockCount);
             availableArray.add(stockCountString);

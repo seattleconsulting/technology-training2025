@@ -49,16 +49,16 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
   // 日付ごとの在庫数を表示させる際に使用（貸出中）
 
-  @Query("SELECT COUNT (rm) " +
-      "FROM RentalManage rm " +
-      "LEFT OUTER JOIN Stock s ON rm.stock.id = s.id " +
-      "WHERE NOT(rm.rentaledAt > ?1 " +
-      "OR rm.expectedReturnOn < ?1) " +
-      "AND s.bookMst.id = ?2 " +
+  @Query(value ="SELECT Count(*) " +
+      "FROM rental_manage rm " +
+      "LEFT OUTER JOIN stocks s ON rm.stock_id = s.id " +
+      "WHERE NOT(CAST(rm.rentaled_at as date) > :date " +
+      "OR rm.expected_return_on < :date) " +
+      "AND s.book_id = :book_id " +
       "AND s.status = 0 " +
       "AND rm.status = 1 " +
-      "AND deletedAt IS null")
-  int borrowingBook(Date day, Long id);
+      "AND deleted_at IS null",nativeQuery = true)
+   int borrowingBook(Date date, Long book_id);
 
   // 日付ごとの貸出不可の在庫管理番号取得
   // リスト

@@ -93,9 +93,9 @@ public class RentalManageController {
             java.sql.Date choiceDate = java.sql.Date.valueOf(localDate);
             List<Stock> availableStock = this.stockService.availableStockValues(choiceDate, title);
             
+            rentalManageDto.setExpectedRentalOn(choiceDate);
             model.addAttribute("stockList", availableStock);
             model.addAttribute("rentalManageDto", rentalManageDto);
-            rentalManageDto.setExpectedRentalOn(choiceDate);
 
         } else {
 
