@@ -1,6 +1,7 @@
 package jp.co.metateam.library.controller;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class StockController {
 
     @GetMapping("/stock/index")
     public String index(Model model) {
-        List <Stock> stockList = this.stockService.findAll();
+        List<Stock> stockList = this.stockService.findAll();
 
         model.addAttribute("stockList", stockList);
 
@@ -113,7 +114,8 @@ public class StockController {
     }
 
     @PostMapping("/stock/{id}/edit")
-    public String update(@PathVariable("id") String id, @Valid @ModelAttribute StockDto stockDto, BindingResult result, RedirectAttributes ra) {
+    public String update(@PathVariable("id") String id, @Valid @ModelAttribute StockDto stockDto, BindingResult result,
+            RedirectAttributes ra) {
         try {
             if (result.hasErrors()) {
                 throw new Exception("Validation error.");
@@ -133,22 +135,25 @@ public class StockController {
     }
 
     @GetMapping("/stock/calendar")
-    public String calendar(@RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month, Model model) {
+    public String calendar(@RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month,
+            Model model) {
 
         LocalDate today = year == null || month == null ? LocalDate.now() : LocalDate.of(year, month, 1);
         Integer targetYear = year == null ? today.getYear() : year;
         Integer targetMonth = today.getMonthValue();
+        LocalDate nowDate = LocalDate.now(ZoneId.of("Asia/Tokyo"));
 
         LocalDate startDate = LocalDate.of(targetYear, targetMonth, 1);
         Integer daysInMonth = startDate.lengthOfMonth();
 
         List<Object> daysOfWeek = this.stockService.generateDaysOfWeek(targetYear, targetMonth, startDate, daysInMonth);
-        List<String> stocks = this.stockService.generateValues(targetYear, targetMonth, daysInMonth);
+        List<List<String>> stocks = this.stockService.generateValues(targetYear, targetMonth, daysInMonth);
 
         model.addAttribute("targetYear", targetYear);
         model.addAttribute("targetMonth", targetMonth);
         model.addAttribute("daysOfWeek", daysOfWeek);
         model.addAttribute("daysInMonth", daysInMonth);
+        model.addAttribute("nowDate", nowDate);
 
         model.addAttribute("stocks", stocks);
 

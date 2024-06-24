@@ -1,5 +1,6 @@
 package jp.co.metateam.library.controller;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,8 @@ import jp.co.metateam.library.service.RentalManageService;
 import jp.co.metateam.library.service.StockService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import jp.co.metateam.library.model.RentalManageDto;
 import jp.co.metateam.library.service.BookMstService;
 import jp.co.metateam.library.model.BookMst;
@@ -75,17 +78,31 @@ public class RentalManageController {
     }
 
     @GetMapping("/rental/add")
-    public String add(Model model, @ModelAttribute RentalManageDto rentalManageDto) {
+    public String add(Model model, @ModelAttribute RentalManageDto rentalManageDto,
+            @RequestParam(value = "year", required = false) Integer year,
+            @RequestParam(value = "month", required = false) Integer month,
+            @RequestParam(value = "day", required = false) Integer day,
+            @RequestParam(value = "title", required = false) String title) {
         List<Account> accounts = this.accountService.findAll();
         List<Stock> stockList = this.stockService.findStockAvailableAll();
-
         model.addAttribute("accounts", accounts);
-        model.addAttribute("stockList", stockList);
         model.addAttribute("rentalStatus", RentalStatus.values());
 
-        if (!model.containsAttribute("rentalManageDto")) {
+        if (year != null && month != null && day != null && title != null) {
+            LocalDate localDate = LocalDate.of(year, month, day);
+            java.sql.Date choiceDate = java.sql.Date.valueOf(localDate);
+            List<Stock> availableStock = this.stockService.availableStockValues(choiceDate, title);
+            
+            rentalManageDto.setExpectedRentalOn(choiceDate);
+            model.addAttribute("stockList", availableStock);
+            model.addAttribute("rentalManageDto", rentalManageDto);
+
+        } else {
+
+            model.addAttribute("stockList", stockList);
             model.addAttribute("rentalManageDto", new RentalManageDto());
         }
+
         return "rental/add";
     }
 

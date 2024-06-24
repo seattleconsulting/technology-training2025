@@ -13,10 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
+import jp.co.metateam.library.model.RentalManage;
 import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.model.StockDto;
 import jp.co.metateam.library.repository.BookMstRepository;
 import jp.co.metateam.library.repository.StockRepository;
+
+import java.sql.Date;
 
 @Service
 public class StockService {
@@ -24,7 +27,7 @@ public class StockService {
     private final StockRepository stockRepository;
 
     @Autowired
-    public StockService(BookMstRepository bookMstRepository, StockRepository stockRepository){
+    public StockService(BookMstRepository bookMstRepository, StockRepository stockRepository) {
         this.bookMstRepository = bookMstRepository;
         this.stockRepository = stockRepository;
     }
@@ -35,10 +38,10 @@ public class StockService {
 
         return stocks;
     }
-    
+
     @Transactional
-    public List <Stock> findStockAvailableAll() {
-        List <Stock> stocks = this.stockRepository.findByDeletedAtIsNullAndStatus(Constants.STOCK_AVAILABLE);
+    public List<Stock> findStockAvailableAll() {
+        List<Stock> stocks = this.stockRepository.findByDeletedAtIsNullAndStatus(Constants.STOCK_AVAILABLE);
 
         return stocks;
     }
@@ -48,7 +51,38 @@ public class StockService {
         return this.stockRepository.findById(id).orElse(null);
     }
 
-    @Transactional 
+    // 在庫カレンダーデータ取得
+    // 書籍名取得
+    @Transactional
+    public List<BookMst> bookTitle() {
+        return this.bookMstRepository.bookTitle();
+    }
+
+    // 書籍ごと総利用可能在庫取得
+    @Transactional
+    public List<Stock> bookStockAvailable(String title) {
+        return this.stockRepository.bookStockAvailable(title);
+    }
+
+    // 書籍ごと利用不可能在庫数取得（貸出待ち）
+    @Transactional
+    public int borrowingWaitBook(Date day, Long id) {
+        return this.stockRepository.borrowingWaitBook(day, id);
+    }
+
+    // 書籍ごと利用不可能在庫数取得（貸出中）
+    @Transactional
+    public int borrowingBook(Date day, Long bookId) {
+        return this.stockRepository.borrowingBook(day, bookId); 
+    }
+
+    // 書籍ごと利用可能在庫番号取得
+    @Transactional
+    public List<Stock> lendableBook(Date choiceDate, String title) {
+        return this.stockRepository.lendableBook(choiceDate, title);
+    }
+
+    @Transactional
     public void save(StockDto stockDto) throws Exception {
         try {
             Stock stock = new Stock();
@@ -69,7 +103,7 @@ public class StockService {
         }
     }
 
-    @Transactional 
+    @Transactional
     public void update(String id, StockDto stockDto) throws Exception {
         try {
             Stock stock = findById(id);
@@ -105,19 +139,70 @@ public class StockService {
         return daysOfWeek;
     }
 
-    public List<String> generateValues(Integer year, Integer month, Integer daysInMonth) {
-        // FIXME ここで各書籍毎の日々の在庫を生成する処理を実装する
-        // FIXME ランダムに値を返却するサンプルを実装している
-        String[] stockNum = {"1", "2", "3", "4", "×"};
-        Random rnd = new Random();
-        List<String> values = new ArrayList<>();
-        values.add("スッキリわかるJava入門 第4版"); // 対象の書籍名
-        values.add("10"); // 対象書籍の在庫総数
-        
-        for (int i = 1; i <= daysInMonth; i++) {
-            int index = rnd.nextInt(stockNum.length);
-            values.add(stockNum[index]);
+    public List<List<String>> generateValues(Integer year, Integer month, Integer daysInMonth) {
+        // データの取得
+        List<BookMst> bookTitleIds = this.bookTitle();
+        int titleCount = bookTitleIds.size();
+        List<String> titleArray = new ArrayList<>();
+        List<Long> idArray = new ArrayList<>();
+        List<String> availableArray = new ArrayList<>();
+        List<String> dayStockArray = new ArrayList<>();
+
+        for (BookMst bookList : bookTitleIds) {
+            titleArray.add(bookList.getTitle());
+            idArray.add(bookList.getId());
+ 
+            List<Stock> StockAvailable = this.bookStockAvailable(bookList.getTitle());
+            //List<Stock> StockId = StockAvailable.getId();
+            int stockCount = StockAvailable.size();
+            String stockCountString = String.valueOf(stockCount);
+            availableArray.add(stockCountString);
+
+            for (int dayOfMonth = 1; dayOfMonth <= daysInMonth; dayOfMonth++) {
+                LocalDate localDate = LocalDate.of(year, month, dayOfMonth);
+                java.sql.Date day = java.sql.Date.valueOf(localDate);
+
+                int borrowingWaitBook = this.borrowingWaitBook(day, bookList.getId());
+                int borrowingBook = this.borrowingBook(day, bookList.getId());
+                int dayStockCount = stockCount - (borrowingWaitBook + borrowingBook);
+                String dayStockCountString = String.valueOf(dayStockCount);
+
+                if (dayStockCountString.equals("0")) {
+                    dayStockCountString = "×";
+                }
+
+                dayStockArray.add(dayStockCountString);
+            }
         }
-        return values;
+
+        List<List<String>> bigValues = new ArrayList<>();
+
+        int roopCount = 0;
+
+        for (int i = 0; i < titleCount; i++) {
+            List<String> values = new ArrayList<>();
+
+            values.add(titleArray.get(i)); // 対象の書籍名
+            values.add(availableArray.get(i)); // 対象書籍の在庫総数
+
+            for (int j = 1; j <= daysInMonth; j++) {
+                values.add(dayStockArray.get(roopCount));
+                roopCount++;
+            }
+            bigValues.add(values);
+        }
+        return bigValues;
     }
+
+    // 貸出登録画面に遷移する際に在庫管理番号を渡すメソッド
+    public List<Stock> availableStockValues(java.sql.Date choiceDate, String title) {
+
+        List<Stock> availableList = lendableBook(choiceDate, title);
+        List<Stock> StockAvailable = this.bookStockAvailable(title);
+
+        StockAvailable.removeAll(availableList);
+
+        return StockAvailable;
+    }
+
 }
