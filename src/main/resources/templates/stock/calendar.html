@@ -14,10 +14,35 @@
             <div th:replace="~{common :: header}"></div>
             <div class="inner_contens">
                 <div class="page_title">在庫カレンダー</div>
+                <div class="search mb30">
+                    <form th:action="@{/stock/calendar}" method="get">
+                        <!--年プルダウン初期値現在年月設定、リストの中身をループで作成（selectタグ、optionタグ）-->
+                        <select id="years" name="year">
+                            <option th:each="choicedYear : ${yearList}" th:value="${choicedYear}"
+                                th:text="${choicedYear}" th:selected="${choicedYear == nowYear}"></option>
+                        </select>
+                        <!-- 年ラベル（labelタグ） -->
+                        <label>年</label>
+                        <!-- 月プルダウン初期値現在年月設定、リストの中身をループで作成（selectタグ、optionタグ） -->
+                        <select id="months" name="month">
+                            <option th:each="choicedMonth : ${monthList}" th:value="${choicedMonth}"
+                                th:text="${choicedMonth}" th:selected="${choicedMonth == nowMonth}"></option>
+                        </select>
+                        <!-- 月ラベル（labelタグ） -->
+                        <label>月&emsp;</label>
+                        <!-- 検索ボタン作成 リンク作成、上記プルダウンで選択された年月を渡す-->
+                        <button type="submit" id="submit_btn">検索</button>
+                        <!-- </div> -->
+                    </form>
+                </div>
                 <div class="month_change mb30">
-                    <div><a th:href="@{/stock/calendar(year=${targetMonth == 1} ? ${targetYear - 1} : ${targetYear}, month=${targetMonth == 1} ? 12 : ${targetMonth - 1})}">前月</a></div>
+                    <div>
+                        <a th:href="@{/stock/calendar(year=${targetMonth == 1} ? ${targetYear - 1} : ${targetYear}, month=${targetMonth == 1} ? 12 : ${targetMonth - 1})}">前月</a>
+                    </div>
                     <div th:text="${targetYear + '年' + targetMonth + '月'}"></div>
-                    <div><a th:href="@{/stock/calendar(year=${targetMonth == 12} ? ${targetYear + 1} : ${targetYear}, month=${targetMonth == 12} ? 1 : ${targetMonth + 1})}">翌月</a></div>
+                    <div>
+                        <a th:href="@{/stock/calendar(year=${targetMonth == 12} ? ${targetYear + 1} : ${targetYear}, month=${targetMonth == 12} ? 1 : ${targetMonth + 1})}">翌月</a>
+                    </div>
                 </div>
 
                 <div class="table_wrapper">
@@ -35,9 +60,9 @@
                                     th:text="${targetYear + '年' + targetMonth + '月'}"></th>
                             </tr>
                             <tr class="days">
-                                <th th:each="day, dayStat : ${daysOfWeek}" 
+                                <th th:each="day, dayStat : ${daysOfWeek}"
                                     th:class="${#strings.contains(day, '(土)')} ? 'saturday' : (${#strings.contains(day, '(日)')} ? 'sunday' : '')"
-                                    th:text="${day}" >
+                                    th:text="${day}">
                                 </th>
                             </tr>
                         </thead>

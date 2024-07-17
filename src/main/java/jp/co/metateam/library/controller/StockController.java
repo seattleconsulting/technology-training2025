@@ -3,6 +3,7 @@ package jp.co.metateam.library.controller;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,12 +18,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 import jp.co.metateam.library.model.BookMst;
+import jp.co.metateam.library.model.RentalManageDto;
 import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.model.StockDto;
 import jp.co.metateam.library.service.BookMstService;
 import jp.co.metateam.library.service.StockService;
 import jp.co.metateam.library.values.StockStatus;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.stream.IntStream;
 
 /**
  * 在庫情報関連クラス
@@ -134,6 +138,14 @@ public class StockController {
         }
     }
 
+    /**
+     * 画面上に在庫カレンダーを表示させるためのプログラム
+     * 
+     * @param year  viewから受け取った表示させたい年の値
+     * @param month viewから受け取った表示させたい月の値
+     * @param model viewに値を渡すために利用
+     * @return 値を返すviewを指定
+     */
     @GetMapping("/stock/calendar")
     public String calendar(@RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month,
             Model model) {
@@ -149,6 +161,15 @@ public class StockController {
         List<Object> daysOfWeek = this.stockService.generateDaysOfWeek(targetYear, targetMonth, startDate, daysInMonth);
         List<List<String>> stocks = this.stockService.generateValues(targetYear, targetMonth, daysInMonth);
 
+        // 年List作成(2006~2100)
+        List<Integer> yearList = IntStream.rangeClosed(2006, 2100).boxed().collect(Collectors.toList());
+        // 月リスト作成（1~12）]
+        List<Integer> monthList = IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList());
+        // 現在年格納
+        int nowYear = nowDate.getYear();
+        // 現在月格納
+        int nowMonth = nowDate.getMonthValue();
+
         model.addAttribute("targetYear", targetYear);
         model.addAttribute("targetMonth", targetMonth);
         model.addAttribute("daysOfWeek", daysOfWeek);
@@ -156,6 +177,18 @@ public class StockController {
         model.addAttribute("nowDate", nowDate);
 
         model.addAttribute("stocks", stocks);
+
+        // 年リストmodel.addAttribute
+        model.addAttribute("yearList", yearList);
+
+        // 月リストmodel.addAttribute
+        model.addAttribute("monthList", monthList);
+
+        // 現在年model.addAttribute
+        model.addAttribute("nowYear", nowYear);
+
+        // 現在月model.addAttribute
+        model.addAttribute("nowMonth", nowMonth);
 
         return "stock/calendar";
     }

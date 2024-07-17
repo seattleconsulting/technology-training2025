@@ -43,3 +43,19 @@
 .sunday {
     color: red;
 }
+
+.search {
+    width: 300px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#submit_btn {
+    width: 60px;
+    height: 25px;
+    font-size: 15px;
+    background-color: #9CF2D3;
+    color: #545454;
+    border-radius: 0.5rem;
+    border: none;
+}
