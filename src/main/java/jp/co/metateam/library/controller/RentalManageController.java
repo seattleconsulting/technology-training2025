@@ -131,6 +131,14 @@ public class RentalManageController {
                     }
                 }
             }
+
+            // 貸出<返却チェック
+            String returnDateError = rentalManageDto.isReturnDateError(rentalManageDto);
+            if (returnDateError != null) {
+                result.addError(new FieldError("rentalManageDto", "expectedReturnOn", returnDateError));
+                throw new RuntimeException();
+            }
+
             if (result.hasErrors()) {
                 throw new Exception("Validation error.");
             }
@@ -227,6 +235,13 @@ public class RentalManageController {
             String DateError = rentalManageDto.isDateError(rentalManage, rentalManageDto);
             if (DateError != null) {
                 result.addError(new FieldError("rentalManageDto", "expectedRentalOn", DateError));
+                throw new RuntimeException();
+            }
+
+            // 貸出<返却チェック
+            String returnDateError = rentalManageDto.isReturnDateError(rentalManageDto);
+            if (returnDateError != null) {
+                result.addError(new FieldError("rentalManageDto", "expectedReturnOn", returnDateError));
                 throw new RuntimeException();
             }
 
