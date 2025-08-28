@@ -28,9 +28,21 @@ services:
     tty: true
     working_dir: /app
     volumes:
-      - ./:/app
+      - ./backend:/app
     ports:
       - 8080:8080 # 通常実行用
       - 5005:5005 # デバッグ用
+
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/app:/var/www/html/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -c 'cd app && npm run start'
 volumes:
   db-store:

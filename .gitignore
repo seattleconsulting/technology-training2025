@@ -36,3 +36,5 @@ build/
 .DS_Store
 docker/mysql/logs/
 docker/minio/.minio.sys/
+
+/node_modules/
