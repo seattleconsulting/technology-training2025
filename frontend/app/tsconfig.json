@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-  ]
+, "src/page.tsx", "../../../frontend/app/src/page.tsx" ]
 }
