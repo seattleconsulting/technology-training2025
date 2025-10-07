@@ -1,5 +1,4 @@
-"use client";
-
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const bookList = {
@@ -19,162 +18,124 @@ const bookList = {
   save: "保存",
 };
 
-export default function BorrowEditPage() {
+export default function BorrowAddPage() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    employeeId: "",
+    borrowDate: "",
+    returnDate: "",
+    inventoryId: "",
+    status: "",
+  });
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(""); // Clear previous error message
+    try {
+      const res = await fetch("http://localhost:8080/rental/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        navigate("/List/bookList");
+      } else {
+        const errorData = await res.json();
+        setErrorMessage(errorData.message || "登録に失敗しました。");
+      }
+    } catch (err) {
+      console.error("通信エラー:", err);
+      setErrorMessage("サーバーに接続できませんでした。後でもう一度お試しください。");
+    }
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      {/* サイドバーとメインコンテンツ */}
       <div style={{ display: "flex", flex: 1 }}>
         {/* サイドバー */}
-        <aside
-          style={{
-            width: "200px",
-            backgroundColor: "#333",
-            color: "white",
-            padding: "1rem",
-            height: "100%",
-          }}
-        >
+        <aside style={sidebarStyle}>
           <h1>{bookList.sidebarTitle}</h1>
           <h2>{bookList.subTitle}</h2>
           <ul style={{ listStyleType: "none", padding: 0 }}>
             <li>
               <Link to="/rental/add">
-                <button
-                  style={{
-                    color: "indigo",
-                    border: "none",
-                    padding: "10px 20px",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    marginBottom: "10px",
-                    width: "100%",
-                  }}
-                >
-                  {bookList.add}
-                </button>
+                <button style={buttonStyle}>{bookList.add}</button>
               </Link>
             </li>
             <li>
               <Link to="/rental/edit">
-                <button
-                  style={{
-                    color: "indigo",
-                    border: "none",
-                    padding: "10px 20px",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    width: "100%",
-                  }}
-                >
-                  {bookList.rentalEdit}
-                </button>
+                <button style={buttonStyle}>{bookList.rentalEdit}</button>
               </Link>
             </li>
           </ul>
         </aside>
 
         {/* メインコンテンツ */}
-        <div style={{ flex: 1, padding: "1rem" }}>
+        <main style={{ flex: 1, padding: "1rem" }}>
           <h1 style={{ color: "gray" }}>{bookList.add}</h1>
-          <hr
-            style={{
-              borderColor: "#eee",
-              borderWidth: "1px",
-              margin: "8px 0",
-            }}
-          />
+          <hr style={{ borderColor: "#eee", borderWidth: "1px", margin: "8px 0" }} />
 
-          {/* 必須項目と戻るリンク */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              margin: "8px 0 16px",
-            }}
-          >
-            <p style={{ color: "red", fontSize: "0.9rem", margin: 0 }}>
-              ＊は必須項目です
-            </p>
+          {/* 注意書きと戻るリンク */}
+          <div style={headerNoticeStyle}>
+            <p style={{ color: "red", fontSize: "0.9rem", margin: 0 }}>＊は必須項目です</p>
             <Link to="/List/bookList">
-              <span
-                style={{
-                  color: "blue",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
-              >
-                ← 一覧へ戻る
-              </span>
+              <span style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}>← 一覧へ戻る</span>
             </Link>
           </div>
 
-          {/* 書籍登録フォーム */}
-          <form style={{ marginTop: "20px" }}>
-            {/* 社員番号 */}
-            <FormField label={bookList.employeeId} required />
+          {/* エラーメッセージ表示 */}
+          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-            {/* 貸出予定日 */}
-            <FormField label={bookList.borrowDate} required />
+          {/* 登録フォーム */}
+          <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
+            <FormField label={bookList.employeeId} required name="employeeId" value={formData.employeeId} onChange={handleChange} />
+            <FormField label={bookList.borrowDate} required name="borrowDate" value={formData.borrowDate} onChange={handleChange} />
+            <FormField label={bookList.returnDate} required name="returnDate" value={formData.returnDate} onChange={handleChange} />
+            <FormField label={bookList.inventoryId} required name="inventoryId" value={formData.inventoryId} onChange={handleChange} />
+            <FormField label={bookList.status} required name="status" value={formData.status} onChange={handleChange} />
 
-            {/* 返却予定日 */}
-            <FormField label={bookList.returnDate} required />
-
-            {/* 在庫管理番号 */}
-            <FormField label={bookList.inventoryId} required />
-
-            {/* ステータス */}
-            <FormField label={bookList.status} required />
-
-            {/* 保存ボタン */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "10vh",
-              }}
-            >
-              <button
-                type="submit"
-                style={{
-                  backgroundColor: "green",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-                onClick={() => navigate("/List/bookList")}
-              >
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "10vh" }}>
+              <button type="submit" style={submitButtonStyle}>
                 {bookList.save}
               </button>
             </div>
           </form>
-        </div>
+        </main>
       </div>
     </div>
   );
 }
 
-/** 共通フォームフィールドコンポーネント */
-function FormField({ label, required }: { label: string; required?: boolean }) {
+function FormField({
+  label,
+  required,
+  name,
+  value,
+  onChange,
+}: {
+  label: string;
+  required?: boolean;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
   return (
     <div style={{ marginBottom: "10px" }}>
-      <label
-        style={{
-          color: "gray",
-          display: "block",
-          marginBottom: "5px",
-        }}
-      >
+      <label style={{ color: "gray", display: "block", marginBottom: "5px" }}>
         {label}
         {required && <span style={{ color: "red", marginLeft: "4px" }}>＊</span>}
       </label>
       <input
         type="text"
+        name={name}
+        value={value}
+        onChange={onChange}
         style={{
           width: "100%",
           padding: "8px",
@@ -185,3 +146,38 @@ function FormField({ label, required }: { label: string; required?: boolean }) {
     </div>
   );
 }
+
+// スタイル定数
+const sidebarStyle = {
+  width: "200px",
+  backgroundColor: "#333",
+  color: "white",
+  padding: "1rem",
+  height: "100%",
+};
+
+const buttonStyle = {
+  color: "indigo",
+  border: "none",
+  padding: "10px 20px",
+  borderRadius: "5px",
+  cursor: "pointer",
+  marginBottom: "10px",
+  width: "100%",
+};
+
+const submitButtonStyle = {
+  backgroundColor: "green",
+  color: "white",
+  border: "none",
+  padding: "10px 20px",
+  borderRadius: "5px",
+  cursor: "pointer",
+};
+
+const headerNoticeStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  margin: "8px 0 16px",
+};
