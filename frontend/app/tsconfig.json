@@ -21,6 +21,7 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
-, "src/page.tsx", "../../../frontend/app/src/page.tsx" ]
+    "src",
+    "src/page.tsx"
+  ]
 }
