@@ -20,7 +20,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env PORT=8080 react-scripts start",
     "winstart": "WATCHPACK_POLLING=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@types/next": "^8.0.7",
-    "@types/react-router-dom": "^5.3.3"
+    "@types/react-router-dom": "^5.3.3",
+    "cross-env": "^10.1.0"
   }
 }
