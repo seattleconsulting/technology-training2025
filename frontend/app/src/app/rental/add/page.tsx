@@ -29,31 +29,15 @@ export default function BorrowAddPage() {
   });
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(""); // Clear previous error message
-    try {
-      const res = await fetch("http://localhost:8080/rental/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        navigate("/List/bookList");
-      } else {
-        const errorData = await res.json();
-        setErrorMessage(errorData.message || "登録に失敗しました。");
-      }
-    } catch (err) {
-      console.error("通信エラー:", err);
-      setErrorMessage("サーバーに接続できませんでした。後でもう一度お試しください。");
-    }
-  };
+  e.preventDefault();
+  navigate("/List/bookList");
+};
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
@@ -95,10 +79,34 @@ export default function BorrowAddPage() {
           {/* 登録フォーム */}
           <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
             <FormField label={bookList.employeeId} required name="employeeId" value={formData.employeeId} onChange={handleChange} />
-            <FormField label={bookList.borrowDate} required name="borrowDate" value={formData.borrowDate} onChange={handleChange} />
-            <FormField label={bookList.returnDate} required name="returnDate" value={formData.returnDate} onChange={handleChange} />
+            <FormField label={bookList.borrowDate} required name="borrowDate" value={formData.borrowDate} onChange={handleChange} type="date" />
+            <FormField label={bookList.returnDate} required name="returnDate" value={formData.returnDate} onChange={handleChange} type="date" />
             <FormField label={bookList.inventoryId} required name="inventoryId" value={formData.inventoryId} onChange={handleChange} />
-            <FormField label={bookList.status} required name="status" value={formData.status} onChange={handleChange} />
+
+            {/* ステータス選択プルダウン */}
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ color: "gray", display: "block", marginBottom: "5px" }}>
+                {bookList.status}
+                <span style={{ color: "red", marginLeft: "4px" }}>＊</span>
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                }}
+              >
+                <option value=""></option>
+                <option value="貸出待ち">貸出待ち</option>
+                <option value="貸出中">貸出中</option>
+                <option value="返却済み">返却済み</option>
+                <option value="キャンセル">キャンセル</option>
+              </select>
+            </div>
 
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "10vh" }}>
               <button type="submit" style={submitButtonStyle}>
@@ -118,12 +126,14 @@ function FormField({
   name,
   value,
   onChange,
+  type = "text",
 }: {
   label: string;
   required?: boolean;
   name: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
 }) {
   return (
     <div style={{ marginBottom: "10px" }}>
@@ -132,7 +142,7 @@ function FormField({
         {required && <span style={{ color: "red", marginLeft: "4px" }}>＊</span>}
       </label>
       <input
-        type="text"
+        type={type}
         name={name}
         value={value}
         onChange={onChange}
@@ -150,7 +160,7 @@ function FormField({
 // スタイル定数
 const sidebarStyle = {
   width: "200px",
-  backgroundColor: "#333",
+  backgroundColor: "#333333ff",
   color: "white",
   padding: "1rem",
   height: "100%",
