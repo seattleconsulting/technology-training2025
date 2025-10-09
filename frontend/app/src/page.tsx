@@ -40,8 +40,6 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <div style={{ display: "flex", flex: 1 }}>
         <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
           <form
             onSubmit={handleLogin}
@@ -54,9 +52,9 @@ const LoginPage = () => {
               backgroundColor: "#f9f9f9",
             }}
           >
-            <h2 style={{ textAlign: "center", marginBottom: "20px", color: "gray" }}>
+            <h1 style={{ textAlign: "center", marginBottom: "20px", color: "gray" }}>
               {bookList.login}
-            </h2>
+            </h1>
 
             <div style={{ marginBottom: "15px" }}>
               <label style={{ color: "gray", display: "block", marginBottom: "5px" }}>
@@ -96,26 +94,23 @@ const LoginPage = () => {
               />
             </div>
 
-            <div style={{ textAlign: "center" }}>
-              <button
-                type="submit"
-                style={{
-                  backgroundColor: "green",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  width: "100%",
-                }}
-              >
-                {bookList.login}
-              </button>
-            </div>
+            <button
+              type="submit"
+              style={{
+                backgroundColor: "green",
+                color: "white",
+                border: "none",
+                padding: "10px 20px",
+                borderRadius: "5px",
+                cursor: "pointer",
+                width: "100%",
+                textAlign: "center",
+              }}
+            >
+              {bookList.login}
+            </button>
           </form>
         </div>
-      </div>
-    </div>
   );
 };
 

@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./page";
-import { CombinedPage } from "./app/List/bookListPage";
-import BorrowAddPage from "./app/rental/add/page";
-import BorrowEditPage from "./app/rental/edit/page";
+import { CombinedPage } from "./app/List/bookList/Page";
+import BorrowAddPage from "./app/rental/add/Page";
+import BorrowEditPage from "./app/rental/edit/Page";
 
 const App = () => {
   return (
