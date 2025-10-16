@@ -1,0 +1,49 @@
+{
+    "name": "Technology Training 2025",
+    "dockerComposeFile": "../compose.yaml",
+    "service": "metateam_academy_app",
+    "workspaceFolder": "/app",
+    "shutdownAction": "stopCompose",
+    "remoteUser": "root",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "redhat.vscode-xml",
+                "vmware.vscode-boot-dev-pack",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "ms-azuretools.vscode-docker",
+                "ms-vscode.vscode-typescript-next",
+                "ms-vscode.js-debug-nightly",
+                "VisualStudioExptTeam.vscodeintellicode",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "biomejs.biome",
+                "formulahendry.auto-rename-tag",
+                "streetsidesoftware.code-spell-checker",
+                "sohamkamani.code-eol",
+                "dsznajder.es7-react-js-snippets",
+                "MS-CEINTL.vscode-language-pack-ja",
+                "yzhang.markdown-all-in-one",
+                "shd101wyy.markdown-preview-enhanced",
+                "bierner.markdown-mermaid",
+                "DavidAnson.vscode-markdownlint",
+                "unifiedjs.vscode-mdx",
+                "csstools.postcss",
+                "unifiedjs.vscode-remark",
+                "bradlc.vscode-tailwindcss",
+                "wayou.vscode-todo-highlight",
+                "kimuson.ts-type-expand",
+                "planbcoding.vscode-react-refactor"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "/bin/sh",
+                "editor.formatOnSave": true,
+                "editor.tabSize": 2,
+                "editor.insertSpaces": true,
+                "editor.detectIndentation": false
+            }
+        }
+    }
+}
