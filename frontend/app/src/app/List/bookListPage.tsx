@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import React from "react";
 
 const bookList = {
   sidebarTitle: "MT書籍管理",
@@ -13,9 +12,9 @@ const bookList = {
   stockCount: "在庫数",
 };
 
-const bookListArray = ["編集", "書籍名", "ISBN", "在庫数"];
+const tableHeaders = ["編集", "書籍名", "ISBN", "在庫数"];
 
-export const bookListPage = () => {
+export const BookListPage = () => {
   const navigate = useNavigate();
 
   const links = [
@@ -26,7 +25,7 @@ export const bookListPage = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* サイドバーとメインコンテンツ */}
-      <div className="flex-1 flex">
+      <div style={{ display: "flex", flex: 1 }}>
         {/* サイドバー */}
         <aside
           style={{
@@ -34,7 +33,7 @@ export const bookListPage = () => {
             backgroundColor: "#333",
             color: "white",
             padding: "1rem",
-            height: "100%",
+            height: "100vh",
           }}
         >
           <h1>{bookList.sidebarTitle}</h1>
@@ -54,7 +53,7 @@ export const bookListPage = () => {
                     borderRadius: "5px",
                     cursor: "pointer",
                     marginBottom: "10px",
-                    width: "100%",
+                    width: "80%",
                   }}
                 >
                   {link.label}
@@ -65,8 +64,8 @@ export const bookListPage = () => {
         </aside>
 
         {/* メインコンテンツ */}
-        <main className="flex-1 p-4">
-          <h2 className="text-gray-500">{bookList.bookList}</h2>
+        <main style={{ flex: 1, padding: "1rem" }}>
+          <h2 style={{ color: "gray" }}>{bookList.bookList}</h2>
           <hr
             style={{
               borderColor: "#eee",
@@ -84,7 +83,7 @@ export const bookListPage = () => {
           >
             <thead style={{ backgroundColor: "#eee" }}>
               <tr>
-                {bookListArray.map((header) => (
+                {tableHeaders.map((header) => (
                   <th key={header} style={{ border: "1px solid black" }}>
                     {header}
                   </th>
@@ -94,7 +93,7 @@ export const bookListPage = () => {
             <tbody>
               <tr>
                 <td style={{ border: "1px solid black" }}>
-                  <button
+                 <button
                     style={{
                       backgroundColor: "transparent",
                       border: "none",
@@ -102,7 +101,7 @@ export const bookListPage = () => {
                     }}
                     onClick={() => navigate("/rental/edit")}
                   >
-                    :pencil2:
+                    ✏️
                   </button>
                 </td>
                 <td style={{ border: "1px solid black" }}></td>
