@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useEffect } from "react";
+import React from "react";
 
 const bookList = {
   sidebarTitle: "MT書籍管理",
@@ -13,9 +13,10 @@ const bookList = {
   stockCount: "在庫数",
 };
 
-export const CombinedPage = () => {
+const bookListArray = ["編集", "書籍名", "ISBN", "在庫数"];
+
+export const bookListPage = () => {
   const navigate = useNavigate();
-  const books = [];
 
   const links = [
     { href: "/rental/add", label: bookList.add },
@@ -25,7 +26,7 @@ export const CombinedPage = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* サイドバーとメインコンテンツ */}
-      <div style={{ display: "flex", flex: 1 }}>
+      <div className="flex-1 flex">
         {/* サイドバー */}
         <aside
           style={{
@@ -37,28 +38,26 @@ export const CombinedPage = () => {
           }}
         >
           <h1>{bookList.sidebarTitle}</h1>
-          <h2>{bookList.subTitle}</h2>
+          <p>{bookList.subTitle}</p>
           <ul style={{ listStyleType: "none", padding: 0 }}>
             {links.map((link, index) => (
               <li key={index}>
-                <Link to={link.href}>
-                  <a
-                    href={link.href}
-                    style={{
-                      display: "block",
-                      backgroundColor: "white",
-                      color: "indigo",
-                      textAlign: "center",
-                      textDecoration: "none",
-                      padding: "10px 20px",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                      marginBottom: "10px",
-                      width: "100%",
-                    }}
-                  >
-                    {link.label}
-                  </a>
+                <Link
+                  to={link.href}
+                  style={{
+                    display: "block",
+                    backgroundColor: "white",
+                    color: "indigo",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    padding: "10px 20px",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    marginBottom: "10px",
+                    width: "100%",
+                  }}
+                >
+                  {link.label}
                 </Link>
               </li>
             ))}
@@ -66,8 +65,8 @@ export const CombinedPage = () => {
         </aside>
 
         {/* メインコンテンツ */}
-        <main style={{ flex: 1, padding: "1rem" }}>
-          <h1 style={{ color: "gray" }}>{bookList.bookList}</h1>
+        <main className="flex-1 p-4">
+          <h2 className="text-gray-500">{bookList.bookList}</h2>
           <hr
             style={{
               borderColor: "#eee",
@@ -85,16 +84,11 @@ export const CombinedPage = () => {
           >
             <thead style={{ backgroundColor: "#eee" }}>
               <tr>
-                {Object.entries(bookList).map(([key, value]) => {
-                  if (["edit", "bookName", "isbn", "stockCount"].includes(key)) {
-                    return (
-                      <th key={key} style={{ border: "1px solid black" }}>
-                        {value}
-                      </th>
-                    );
-                  }
-                  return null;
-                })}
+                {bookListArray.map((header) => (
+                  <th key={header} style={{ border: "1px solid black" }}>
+                    {header}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
