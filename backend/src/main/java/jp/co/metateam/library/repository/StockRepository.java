@@ -12,7 +12,7 @@ import jp.co.metateam.library.model.Stock;
 import java.sql.Date;
 
 @Repository
-public interface StockRepository extends JpaRepository<Stock, Long> {
+public interface StockRepository extends JpaRepository<Stock, String> {
 
   List<Stock> findAll();
 

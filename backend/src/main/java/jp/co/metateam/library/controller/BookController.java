@@ -1,124 +1,129 @@
 package jp.co.metateam.library.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import jp.co.metateam.library.model.BookMst;
 import jp.co.metateam.library.model.BookMstDto;
 import jp.co.metateam.library.service.BookMstService;
-import lombok.extern.log4j.Log4j2;
+import jp.co.metateam.library.service.StockService;
 
 /**
- * 書籍関連クラス
+ * 書籍関連 REST API
  */
-@Log4j2
-@Controller
+@RestController
+@RequestMapping("/api/books")
 public class BookController {
-    
+
     private final BookMstService bookMstService;
+    private final StockService stockService;
 
-    @Autowired
-    public BookController(BookMstService bookMstService){
+    public BookController(BookMstService bookMstService, StockService stockService) {
         this.bookMstService = bookMstService;
+        this.stockService = stockService;
     }
 
-    @GetMapping("/book/index")
-    public String index(Model model) {
-        // 書籍を全件取得
+    @GetMapping
+    public List<BookListResponse> list() {
         List<BookMstDto> bookMstList = this.bookMstService.findAvailableWithStockCount();
-        
-        model.addAttribute("bookMstList", bookMstList);
-
-        return "book/index";
+        return bookMstList.stream()
+                .map(dto -> new BookListResponse(
+                        dto.getId(),
+                        dto.getTitle(),
+                        dto.getIsbn(),
+                        dto.getStockCount()))
+                .collect(Collectors.toList());
     }
 
-    @GetMapping("/book/add")
-    public String add(Model model) {
-        if (!model.containsAttribute("bookMstDto")) {
-            model.addAttribute("bookMstDto", new BookMstDto());
+    @GetMapping("/{id}")
+    public ResponseEntity<?> detail(@PathVariable("id") Long id) {
+        Optional<BookMst> bookOpt = this.bookMstService.findById(id);
+        if (bookOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("errors", List.of(Map.of("field", "id", "message", "書籍が見つかりません"))));
         }
 
-        return "book/add";
+        BookMst book = bookOpt.get();
+        int stockCount = stockService.findStockAvailableAll().stream()
+                .filter(stock -> stock.getBookMst() != null && stock.getBookMst().getId().equals(book.getId()))
+                .toList()
+                .size();
+
+        return ResponseEntity.ok(new BookDetailResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getIsbn(),
+                stockCount));
     }
-    
-    @PostMapping("/book/add")
-    public String register(@Valid @ModelAttribute BookMstDto bookMstDto, BindingResult result, RedirectAttributes ra, Model model) {
+
+    @PostMapping
+    public ResponseEntity<?> create(@Valid @RequestBody BookRequest request) {
+        BookMstDto dto = new BookMstDto();
+        dto.setTitle(request.title());
+        dto.setIsbn(request.isbn());
+
         try {
-
-            boolean validTitle = bookMstService.isValidTitle(bookMstDto.getTitle(), model);
-            boolean validIsbn = bookMstService.isValidIsbn(bookMstDto.getIsbn(), model);
-            
-            if (validTitle || validIsbn) {
-                model.addAttribute("bookMstDto", bookMstDto);
-                return "book/add";
-            }
-
-            if (result.hasErrors()) {
-                throw new Exception("Validation error.");
-            }
-
-            // 登録処理
-            this.bookMstService.save(bookMstDto);
-            
-            return "redirect:/book/index";
-        } catch (Exception e) {
-            log.error(e.getMessage());
-
-            ra.addFlashAttribute("bookMstDto", bookMstDto);
-            ra.addFlashAttribute("org.springframework.validation.BindingResult.bookMstDto", result);
-
-            return "redirect:/book/add";
+            this.bookMstService.save(dto);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("errors",
+                            List.of(Map.of("field", "isbn", "message", "同じISBNの書籍が既に存在します"))));
         }
+
+        List<BookListResponse> responses = list().stream()
+                .filter(book -> book.isbn().equals(request.isbn()))
+                .toList();
+        if (responses.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "登録が完了しました"));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(responses.get(0));
     }
 
-    @GetMapping("/book/{id}/edit")
-    public String edit(@PathVariable("id") String id, Model model) {
-        BookMst bookMst = this.bookMstService.findById(Long.valueOf(id)).orElse(null);
-        BookMstDto bookMstDto = new BookMstDto();
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable("id") Long id, @Valid @RequestBody BookRequest request) {
+        BookMstDto dto = new BookMstDto();
+        dto.setTitle(request.title());
+        dto.setIsbn(request.isbn());
 
-        bookMstDto.setId(bookMst.getId());
-        bookMstDto.setIsbn(bookMst.getIsbn());
-        bookMstDto.setTitle(bookMst.getTitle());
-
-        model.addAttribute("bookMstDto", bookMstDto);
-        
-        return "book/edit";
-    }
-    
-    @PostMapping("/book/{id}/edit")
-    public String update(@PathVariable("id") String id, @Valid @ModelAttribute BookMstDto bookMstDto, BindingResult result, Model model) {
         try {
-
-            boolean validTitle = bookMstService.isValidTitle(bookMstDto.getTitle(), model);
-            boolean validIsbn = bookMstService.isValidIsbn(bookMstDto.getIsbn(), model);
-
-            if (validTitle || validIsbn) {
-                model.addAttribute("bookMstDto", bookMstDto);
-                return "book/edit";
-            }
-
-            if (result.hasErrors()) {
-                throw new Exception("Validation error.");
-            }
-
-            // 更新処理
-            this.bookMstService.update(Long.valueOf(id), bookMstDto);
-            
-            return "redirect:/book/index";
+            this.bookMstService.update(id, dto);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("errors",
+                            List.of(Map.of("field", "isbn", "message", "同じISBNの書籍が既に存在します"))));
         } catch (Exception e) {
-            log.error(e.getMessage());
-
-            return "book/edit";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("errors", List.of(Map.of("field", "id", "message", "書籍が見つかりません"))));
         }
+
+        return detail(id);
+    }
+
+    public record BookRequest(
+            @NotEmpty @Size(max = 255) String title,
+            @NotEmpty @Pattern(regexp = "^[0-9]{13}$", message = "ISBNは13桁の数字で入力してください") String isbn) {
+    }
+
+    public record BookListResponse(Long id, String title, String isbn, long availableStockCount) {
+    }
+
+    public record BookDetailResponse(Long id, String title, String isbn, long availableStockCount) {
     }
 }

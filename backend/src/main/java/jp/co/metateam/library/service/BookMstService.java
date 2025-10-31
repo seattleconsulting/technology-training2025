@@ -7,10 +7,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import io.micrometer.common.util.StringUtils;
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
 import jp.co.metateam.library.model.BookMstDto;
@@ -92,38 +88,6 @@ public class BookMstService {
         }
     }
 
-    public boolean isValidTitle(String title, Model model) {
-        if (StringUtils.isEmpty(title)) {
-            model.addAttribute("errTitle", "書籍タイトルは必須");
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isValidIsbn(String isbn, Model model) {
-        if (StringUtils.isEmpty(isbn) || isbn.length() != 13) {
-            model.addAttribute("errISBN", "ISBNは13文字で入力してください");
-            return true;
-        }
-        return false;
-    }
-
-    // public boolean isValidTitle(String title, RedirectAttributes ra) {
-    //     if (StringUtils.isEmpty(title)) {
-    //         ra.addFlashAttribute("errTitle", "書籍タイトルは必須");
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    // public boolean isValidIsbn(String isbn, RedirectAttributes ra) {
-    //     if (StringUtils.isEmpty(isbn) || isbn.length() != 13) {
-    //         ra.addFlashAttribute("errISBN", "ISBNは13文字で入力してください");
-    //         return true;
-    //     }
-    //     return false;
-    // }
 }
-
 
 

@@ -32,9 +32,10 @@
     - VSCode上でソースを保存するたびにコンテナも同期されるので、毎回少し待つ必要があることに注意
 
 ## 開発環境のURL
-- Docker起動できたら、以下のURLでアクセスできる
-  - http://localhost:8080/mt_library/login
-  - http://localhost:9001/login
+- Docker 起動およびフロントエンド（`frontend/app`）を立ち上げると以下から利用できる
+  - React フロントエンド: http://localhost:3000
+  - REST API (JSON): http://localhost:8080/mt_library/api/...
+  - MinIO コンソール: http://localhost:9001/login
 
 # IDE（統合開発環境）について
 - 本アプリの開発環境構築は簡単に作業ができるように[VSCode](https://code.visualstudio.com/)の使用を前提にしている

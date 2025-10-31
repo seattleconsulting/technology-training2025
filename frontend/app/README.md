@@ -1,46 +1,49 @@
-# Getting Started with Create React App
+# MTLibrary React Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React 製の SPA から Spring Boot REST API を利用するフロントエンドです。
+ログイン後に書籍・在庫・貸出の各画面へ遷移でき、従来の JSP 画面を置き換えています。
 
-## Available Scripts
+## セットアップ
 
-In the project directory, you can run:
+```bash
+cd frontend/app
+npm install
+```
 
-### `npm start`
+> **Note**: `react-router-dom` を含む依存関係を追加しています。初回は必ず `npm install` を実行してください。
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 実行
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+# 開発モードで起動（http://localhost:3000）
+npm start
+```
 
-### `npm test`
+バックエンド（Spring Boot）がデフォルトの `http://localhost:8080/mt_library` で動作している前提です。  
+異なる URL で API を公開する場合は以下の環境変数を設定してください。
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+REACT_APP_API_BASE=http://localhost:8080/mt_library/api
+```
 
-### `npm run build`
+## 主な画面
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- ログイン / 新規登録
+- 書籍一覧・登録 / 編集
+- 在庫一覧・登録 / 編集・貸出状況参照
+- 在庫カレンダー（日別空き状況）
+- 貸出一覧・登録 / 編集
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+それぞれ JSON API（`/api/**`）を利用しており、結果・エラーは画面上で確認できます。
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## その他のスクリプト
 
-### `npm run eject`
+```bash
+# 型チェックとビルド
+npm run build
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+# テスト
+npm test
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+テスト・ビルドを実行する前にバックエンドの API が利用可能な状態であることを確認してください。

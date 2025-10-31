@@ -41,6 +41,10 @@ public class AccountPrincipal implements UserDetails {
         return this.account.getEmail();
     }
 
+    public Account getAccount() {
+        return this.account;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -61,4 +65,3 @@ public class AccountPrincipal implements UserDetails {
         return true;
     }
 }
-
