@@ -26,12 +26,13 @@ services:
     build: ./docker/mt_library
     container_name: metateam_academy_app
     tty: true
-    working_dir: /app
+    working_dir: /workspace/backend
     volumes:
-      - ./backend:/app
+      - .:/workspace:cached
     ports:
       - 8080:8080 # 通常実行用
       - 5005:5005 # デバッグ用
+    command: ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"]
 
   frontend:
     build:
@@ -40,9 +41,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend/app:/var/www/html/app
+      - ./frontend:/workspace/frontend
     environment:
       - CHOKIDAR_USEPOLLING=true
-    command: sh -c 'cd app && npm run start'
+    command: sh -c 'cd /workspace/frontend && npm run start'
 volumes:
   db-store:

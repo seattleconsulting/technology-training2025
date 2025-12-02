@@ -1,0 +1,50 @@
+{
+  "name": "MTLibrary Workspace",
+  "dockerComposeFile": "../compose.yaml",
+  "service": "metateam_academy_app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "overrideCommand": true,
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
+      "username": "vscode"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18",
+      "packageManager": "npm"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-21",
+            "path": "/usr/lib/jvm/temurin-21-jdk-amd64",
+            "default": true
+          }
+        ],
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-spring-initializr",
+        "vscjava.vscode-spring-boot-dashboard",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "forwardPorts": [3000, 8080, 3306],
+  "runServices": ["metateam_academy_mysql", "metateam_academy_minio", "frontend"],
+  "postCreateCommand": "cd /workspace/backend && mvn -q -DskipTests package || true",
+  "postStartCommand": "cd /workspace/frontend && npm install || true; cd /workspace/backend && nohup mvn spring-boot:run -Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 > /tmp/spring-boot.log 2>&1 &",
+  "remoteUser": "vscode"
+}
