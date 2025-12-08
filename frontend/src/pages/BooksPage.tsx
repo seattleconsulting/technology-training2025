@@ -131,7 +131,7 @@ export const BooksPage: React.FC = () => {
               <tr>
                 <th>書籍名</th>
                 <th>ISBN</th>
-                <th>利用可能在庫</th>
+                <th>可能利用在庫</th>
                 <th>操作</th>
               </tr>
             </thead>
