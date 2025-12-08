@@ -1,6 +1,7 @@
 package jp.co.metateam.library.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
 import jp.co.metateam.library.model.BookMstDto;
+import jp.co.metateam.library.model.BookMstDtoComparator;
 import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.repository.BookMstRepository;
 import jp.co.metateam.library.repository.StockRepository;
@@ -50,7 +52,7 @@ public class BookMstService {
             bookMstDto.setStockCount(stockCount.size());
             bookMstDtoList.add(bookMstDto);
         }
-
+        Collections.sort(bookMstDtoList, new BookMstDtoComparator());
         return bookMstDtoList;
     }
 
