@@ -208,7 +208,7 @@ export const StocksPage: React.FC = () => {
             <table className="table">
               <thead>
                 <tr>
-                  <th>在庫ID</th>
+                  <th>在庫lD</th>
                   <th>書籍名</th>
                   <th>ステータス</th>
                   <th>価格</th>
