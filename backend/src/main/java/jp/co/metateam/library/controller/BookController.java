@@ -41,8 +41,8 @@ public class BookController {
     }
 
     @GetMapping
-    public List<BookListResponse> list() {
-        List<BookMstDto> bookMstList = this.bookMstService.findAvailableWithStockCount();
+    public List<BookListResponse> list(boolean createFlg) {
+        List<BookMstDto> bookMstList = this.bookMstService.findAvailableWithStockCount(createFlg);
         return bookMstList.stream()
                 .map(dto -> new BookListResponse(
                         dto.getId(),
@@ -87,7 +87,7 @@ public class BookController {
                             List.of(Map.of("field", "isbn", "message", "同じISBNの書籍が既に存在します"))));
         }
 
-        List<BookListResponse> responses = list().stream()
+        List<BookListResponse> responses = list(true).stream()
                 .filter(book -> book.isbn().equals(request.isbn()))
                 .toList();
         if (responses.isEmpty()) {

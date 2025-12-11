@@ -35,7 +35,7 @@ public class BookMstService {
         return this.bookMstRepository.findById(id);
     }
 
-    public List<BookMstDto> findAvailableWithStockCount() {
+    public List<BookMstDto> findAvailableWithStockCount(boolean createFlg) {
         List<BookMst> books = this.bookMstRepository.findAll();
         List<BookMstDto> bookMstDtoList = new ArrayList<BookMstDto>();
 
@@ -48,6 +48,7 @@ public class BookMstService {
             BookMstDto bookMstDto = new BookMstDto();
             bookMstDto.setId(book.getId());
             bookMstDto.setTitle(book.getTitle());
+            bookMstDto.setIsbn(createFlg ? book.getIsbn() : null);
             bookMstDto.setStockCount(stockCount.size());
             bookMstDtoList.add(bookMstDto);
         }
