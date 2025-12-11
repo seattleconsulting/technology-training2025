@@ -9,7 +9,6 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
@@ -32,57 +31,48 @@ public class StockService {
         this.stockRepository = stockRepository;
     }
 
-    @Transactional
     public List<Stock> findAll() {
         List<Stock> stocks = this.stockRepository.findByDeletedAtIsNull();
 
         return stocks;
     }
 
-    @Transactional
     public List<Stock> findStockAvailableAll() {
         List<Stock> stocks = this.stockRepository.findByDeletedAtIsNullAndStatus(Constants.STOCK_AVAILABLE);
 
         return stocks;
     }
 
-    @Transactional
     public Stock findById(String id) {
         return this.stockRepository.findById(id).orElse(null);
     }
 
     // 在庫カレンダーデータ取得
     // 書籍名取得
-    @Transactional
     public List<BookMst> bookTitle() {
         return this.bookMstRepository.bookTitle();
     }
 
     // 書籍ごと総利用可能在庫取得
-    @Transactional
     public List<Stock> bookStockAvailable(String title) {
         return this.stockRepository.bookStockAvailable(title);
     }
 
     // 書籍ごと利用不可能在庫数取得（貸出待ち）
-    @Transactional
     public int borrowingWaitBook(Date day, Long id) {
         return this.stockRepository.borrowingWaitBook(day, id);
     }
 
     // 書籍ごと利用不可能在庫数取得（貸出中）
-    @Transactional
     public int borrowingBook(Date day, Long bookId) {
-        return this.stockRepository.borrowingBook(day, bookId); 
+        return this.stockRepository.borrowingBook(day, bookId);
     }
 
     // 書籍ごと利用可能在庫番号取得
-    @Transactional
     public List<Stock> lendableBook(Date choiceDate, String title) {
         return this.stockRepository.lendableBook(choiceDate, title);
     }
 
-    @Transactional
     public void save(StockDto stockDto) throws Exception {
         try {
             Stock stock = new Stock();
@@ -103,7 +93,6 @@ public class StockService {
         }
     }
 
-    @Transactional
     public void update(String id, StockDto stockDto) throws Exception {
         try {
             Stock stock = findById(id);
@@ -151,9 +140,9 @@ public class StockService {
         for (BookMst bookList : bookTitleIds) {
             titleArray.add(bookList.getTitle());
             idArray.add(bookList.getId());
- 
+
             List<Stock> StockAvailable = this.bookStockAvailable(bookList.getTitle());
-            //List<Stock> StockId = StockAvailable.getId();
+            // List<Stock> StockId = StockAvailable.getId();
             int stockCount = StockAvailable.size();
             String stockCountString = String.valueOf(stockCount);
             availableArray.add(stockCountString);

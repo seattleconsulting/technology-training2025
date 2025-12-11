@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
 import jp.co.metateam.library.model.BookMstDto;
@@ -56,7 +55,6 @@ public class BookMstService {
         return bookMstDtoList;
     }
 
-    @Transactional
     public void save(BookMstDto bookMstDto) {
         try {
             BookMst book = new BookMst();
@@ -71,7 +69,6 @@ public class BookMstService {
         }
     }
 
-    @Transactional
     public void update(Long id, BookMstDto bookMstDto) throws Exception {
         try {
             // 既存レコード取得

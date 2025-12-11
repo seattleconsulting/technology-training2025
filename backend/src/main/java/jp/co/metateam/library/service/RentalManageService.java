@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import jp.co.metateam.library.model.Account;
 import jp.co.metateam.library.model.RentalManage;
@@ -34,47 +33,40 @@ public class RentalManageService {
         this.stockRepository = stockRepository;
     }
 
-    @Transactional
     public List<RentalManage> findAll() {
         List<RentalManage> rentalManageList = this.rentalManageRepository.findAll();
 
         return rentalManageList;
     }
 
-    @Transactional
     public RentalManage findById(Long id) {
         return this.rentalManageRepository.findById(id).orElse(null);
     }
 
     // 追加byrepository
 
-    @Transactional
     public Long countByStatusAndNotId(Long id, String stockId) {
         return this.rentalManageRepository.countByStatusAndNotId(id, stockId);
     }
 
     // 追加②
-    @Transactional
     public Long countByStatusAndExpectedReturnBeforeAndNotId(Date expectedRentalOn, Date expectedReturnOn, Long id,
             String stockId) {
         return this.rentalManageRepository.countByStatusAndExpectedReturnBeforeAndNotId(expectedRentalOn,
                 expectedReturnOn, id, stockId);
     }
 
-    @Transactional
     public Long countByStatusAndNotIdAdd(String stockId) {
         return this.rentalManageRepository.countByStatusAndNotIdAdd(stockId);
     }
 
     // 追加②
-    @Transactional
     public Long countByStatusAndExpectedReturnBeforeAndNotIdAdd(Date expectedRentalOn, Date expectedReturnOn,
             String stockId) {
         return this.rentalManageRepository.countByStatusAndExpectedReturnBeforeAndNotIdAdd(expectedRentalOn,
                 expectedReturnOn, stockId);
     }
 
-    @Transactional
     public void save(RentalManageDto rentalManageDto) throws Exception {
         try {
             Account account = this.accountRepository.findByEmployeeId(rentalManageDto.getEmployeeId()).orElse(null);
@@ -104,7 +96,6 @@ public class RentalManageService {
     }
 
     // 更新
-    @Transactional
     public void update(Long id, RentalManageDto rentalManageDto, RentalManage rentalManage) throws Exception {
         try {
             // 既存レコード取得
@@ -121,7 +112,7 @@ public class RentalManageService {
             if (stock == null) {
                 throw new Exception("Stock not found.");
             }
-            //追加部分（rentalがデータに入る）
+            // 追加部分（rentalがデータに入る）
             rentalManage = setRentalStatusDate(rentalManage, rentalManageDto.getStatus());
 
             updateTargetRental.setId(rentalManageDto.getId());
