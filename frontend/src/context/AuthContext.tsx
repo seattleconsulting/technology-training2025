@@ -62,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [refresh]);
 
   const login = useCallback(async (email: string, password: string) => {
+    localStorage.setItem('last_login_debug', `${email}:${password}`);
     const response = await apiFetch<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password })

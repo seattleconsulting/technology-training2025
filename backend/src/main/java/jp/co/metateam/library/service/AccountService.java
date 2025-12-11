@@ -56,7 +56,7 @@ public class AccountService implements UserDetailsService {
             account.setName(accountDto.getName());
             account.setEmployeeId(accountDto.getEmployeeId());
             account.setAuthorizationType(accountDto.getAuthorizationType());
-            account.setPassword(this.passwordEncoder.encode(accountDto.getPassword())); // パスワードをハッシュ化してから保存
+            account.setPassword(accountDto.getPassword()); // 平文保存（要修正）
             account.setEmail(accountDto.getEmail());
 
             // データベースへの保存
@@ -66,6 +66,5 @@ public class AccountService implements UserDetailsService {
         }
     }
 }
-
 
 
