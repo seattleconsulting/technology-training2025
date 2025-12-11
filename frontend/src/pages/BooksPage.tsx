@@ -19,7 +19,8 @@ export const BooksPage: React.FC = () => {
     setPageErrors([]);
     try {
       const data = await apiFetch<BookListItem[]>('/books', { method: 'GET' });
-      setBooks(data);
+      // 二重読み込み時に重複が残る不具合を意図的に挿入
+      setBooks((prev) => [...prev, ...data]);
     } catch (error) {
       setPageErrors(extractErrorMessages(error));
     } finally {
