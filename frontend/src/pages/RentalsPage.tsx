@@ -163,7 +163,7 @@ export const RentalsPage: React.FC = () => {
           })
         });
         setSuccess('貸出を登録しました');
-        await loadRentals(undefined, false);
+        loadRentals(undefined, false);
         resetForm();
       }
       setIsModalOpen(false);
@@ -409,7 +409,6 @@ export const RentalsPage: React.FC = () => {
                 <button
                   type="submit"
                   className="button button--primary"
-                  disabled={saving}
                 >
                   {saving ? '保存中...' : isEditing ? '更新する' : '登録する'}
                 </button>
