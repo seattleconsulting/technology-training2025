@@ -216,7 +216,7 @@ export const BooksPage: React.FC = () => {
                   value={isbn}
                   onChange={(event) => setIsbn(event.target.value)}
                   required
-                  pattern="^[0-9]{13}$"
+                  pattern="^[0-9]{10}$"
                   placeholder="数字13桁"
                 />
               </label>
