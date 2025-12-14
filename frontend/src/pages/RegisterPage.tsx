@@ -43,7 +43,7 @@ export const RegisterPage: React.FC = () => {
         password,
         authorizationType
       });
-      setSuccess('登録が完了しました。ログインしてください。');
+      setSuccess('登録が完了しました。口グインしてください。');
       setTimeout(() => navigate('/login'), 1200);
     } catch (error) {
       setErrors(extractErrorMessages(error));
