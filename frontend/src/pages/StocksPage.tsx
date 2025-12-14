@@ -67,7 +67,7 @@ export const StocksPage: React.FC = () => {
   useEffect(() => {
     loadStocks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [stocks]);
 
   const resetForm = () => {
     setFormId('');
