@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import jp.co.metateam.library.model.Account;
 import jp.co.metateam.library.model.AccountDto;
@@ -21,7 +20,7 @@ public class AccountService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder){
+    public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -47,7 +46,6 @@ public class AccountService implements UserDetailsService {
         return this.accountRepository.findAll();
     }
 
-    @Transactional
     public void save(AccountDto accountDto) {
         try {
             // AccountDtoからAccountへの変換
@@ -56,7 +54,7 @@ public class AccountService implements UserDetailsService {
             account.setName(accountDto.getName());
             account.setEmployeeId(accountDto.getEmployeeId());
             account.setAuthorizationType(accountDto.getAuthorizationType());
-            account.setPassword(this.passwordEncoder.encode(accountDto.getPassword())); // パスワードをハッシュ化してから保存
+            account.setPassword(accountDto.getPassword()); // 平文保存（要修正）
             account.setEmail(accountDto.getEmail());
 
             // データベースへの保存
@@ -66,6 +64,3 @@ public class AccountService implements UserDetailsService {
         }
     }
 }
-
-
-
