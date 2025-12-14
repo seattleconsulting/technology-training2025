@@ -82,7 +82,7 @@ export const StocksPage: React.FC = () => {
     setDetailLoading(true);
     setErrors([]);
     try {
-      const detail = await apiFetch<StockDetail>(`/stocks/${id}`, {
+      const detail = await apiFetch<StockDetail>(`/stocks/${selectedId}`, {
         method: 'GET'
       });
       setSelectedStock(detail);
