@@ -30,6 +30,7 @@ export const RentalsPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBugOverlayOpen, setIsBugOverlayOpen] = useState(false);
 
   const [formStockId, setFormStockId] = useState('');
   const [formEmployeeId, setFormEmployeeId] = useState('');
@@ -176,9 +177,28 @@ export const RentalsPage: React.FC = () => {
 
   return (
     <div className="page">
-      <div className="page__header">
+      <div className="page__header" style={{ position: 'relative' }}>
         <h1>貸出管理</h1>
         <p>貸出状況を管理し、新規貸出の登録を行います。</p>
+        {/* 隠しボタン: 透明で存在は見えないがクリック可能。ヘッダー右上に配置 */}
+        <button
+          aria-hidden="true"
+          type="button"
+          onClick={() => setIsBugOverlayOpen(true)}
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            width: 28,
+            height: 28,
+            padding: 0,
+            margin: 0,
+            border: 'none',
+            background: 'transparent',
+            opacity: 0,
+            cursor: 'pointer'
+          }}
+        />
       </div>
       {errors.length > 0 && (
         <div className="alert alert--error">
@@ -424,6 +444,27 @@ export const RentalsPage: React.FC = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+      {isBugOverlayOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setIsBugOverlayOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.9)',
+            color: '#fff',
+            fontSize: '48px',
+            fontWeight: 700
+          }}
+        >
+          バグヘル！
         </div>
       )}
     </div>
