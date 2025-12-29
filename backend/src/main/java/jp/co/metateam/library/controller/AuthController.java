@@ -51,24 +51,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest) {
-        try {
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    request.email(),
-                    request.password());
-            Authentication authentication = authenticationManager.authenticate(authToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                request.email(),
+                request.password());
+        Authentication authentication = authenticationManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            HttpSession session = servletRequest.getSession(true);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    SecurityContextHolder.getContext());
+        HttpSession session = servletRequest.getSession(true);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
 
-            AccountPrincipal principal = (AccountPrincipal) authentication.getPrincipal();
+        AccountPrincipal principal = (AccountPrincipal) authentication.getPrincipal();
 
-            return ResponseEntity.ok(new LoginResponse(AccountSummary.from(principal.getAccount()), session.getId()));
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("errors", List.of(Map.of("field", "credentials", "message", "メールアドレスまたはパスワードが正しくありません"))));
-        }
+        return ResponseEntity.ok(new LoginResponse(AccountSummary.from(principal.getAccount()), session.getId()));
     }
 
     @GetMapping("/me")

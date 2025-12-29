@@ -118,6 +118,11 @@ public class StockService {
     }
 
     public List<Object> generateDaysOfWeek(int year, int month, LocalDate startDate, int daysInMonth) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         List<Object> daysOfWeek = new ArrayList<>();
         for (int dayOfMonth = 1; dayOfMonth <= daysInMonth; dayOfMonth++) {
             LocalDate date = LocalDate.of(year, month, dayOfMonth);
