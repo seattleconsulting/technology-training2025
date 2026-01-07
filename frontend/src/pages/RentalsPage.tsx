@@ -257,7 +257,7 @@ export const RentalsPage: React.FC = () => {
                       {rental.employeeId ? `（${rental.employeeId}）` : ''}
                     </td>
                     <td>
-                      {rental.expectedRentalOn ?? '-'} ~{' '}
+                      {rental.expectedRentalOn ?? '-'} ~
                       {rental.expectedReturnOn ?? '-'}
                     </td>
                     <td>{rental.status.label}</td>
