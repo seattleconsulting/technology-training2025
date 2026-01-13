@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 -- 外部キー制約を一時的に無効化
 SET foreign_key_checks = 0;
 
