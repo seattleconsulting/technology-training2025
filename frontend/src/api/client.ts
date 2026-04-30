@@ -1,7 +1,20 @@
 import { ErrorResponse } from '../types';
 
+function resolveApiBase(): string {
+  if (process.env.REACT_APP_API_BASE) {
+    return process.env.REACT_APP_API_BASE;
+  }
+
+  if (window.location.hostname.endsWith('.app.github.dev')) {
+    const apiHost = window.location.hostname.replace('-3000.', '-8080.');
+    return `${window.location.protocol}//${apiHost}/mt_library/api`;
+  }
+
+  return 'http://localhost:8080/mt_library/api';
+}
+
 const API_BASE =
-  process.env.REACT_APP_API_BASE ?? 'http://localhost:8080/mt_library/api';
+  resolveApiBase();
 
 export class ApiError extends Error {
   status: number;
@@ -63,4 +76,3 @@ export function extractErrorMessages(error: unknown): string[] {
   }
   return ['不明なエラーが発生しました'];
 }
-
