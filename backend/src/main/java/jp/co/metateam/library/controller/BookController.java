@@ -22,6 +22,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jp.co.metateam.library.model.BookMst;
 import jp.co.metateam.library.model.BookMstDto;
+import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.service.BookMstService;
 import jp.co.metateam.library.service.StockService;
 
@@ -61,10 +62,16 @@ public class BookController {
         }
 
         BookMst book = bookOpt.get();
-        int stockCount = stockService.findStockAvailableAll().stream()
+        List<Stock> availableStocks = stockService.findStockAvailableAll().stream()
                 .filter(stock -> stock.getBookMst() != null && stock.getBookMst().getId().equals(book.getId()))
-                .toList()
-                .size();
+                .toList();
+        Integer availableStatus = availableStocks.get(0).getStatus();
+        int stockCount = 0;
+        for (int i = 0; i < availableStocks.size(); i++) {
+            if (availableStocks.get(i).getStatus().equals(availableStatus)) {
+                stockCount++;
+            }
+        }
 
         return ResponseEntity.ok(new BookDetailResponse(
                 book.getId(),
