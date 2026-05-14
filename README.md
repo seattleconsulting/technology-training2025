@@ -51,6 +51,52 @@ npm start
 
 バックエンドのベース URL は `http://localhost:8080/mt_library` を前提にしています。変更する場合はフロントエンド起動前に環境変数 `REACT_APP_API_BASE` を設定してください。
 
+## Codespacesを用いたアプリの起動手順
+
+### フロント起動 
+以下のコマンドを叩く 
+```bash
+cd /workspace/frontend 
+rm -rf node_modules 
+npm ci 
+REACT_APP_API_BASE=https://<codespace-name>-8080.app.github.dev/mt_library/api npm start 
+```
+
+### バックエンド起動 
+別ターミナルで以下のコマンドを叩く
+```bash 
+cd /workspace/backend 
+mvn spring-boot:run 
+```
+
+### Ports設定 
+Codespaces の Ports タブで以下を確認。
+```bash 
+3000: Public 
+8080: Public 
+```
+
+### 動作確認	 
+以下コマンドを叩いてバックエンド確認 
+```bash
+curl -i http://localhost:8080/mt_library/api/auth/authorization-types 
+
+これが返ればOK。 
+[{"code":0,"label":"一般"},{"code":1,"label":"管理者"}] 
+```
+
+
+### 注意点 
+REACT_APP_API_BASE の <codespace-name> は、今開いている 3000 のURLと同じ名前にする。 
+```bash
+OK: 
+https://super-duper-acorn-g4x54p4gq9w4c9g9q-3000.app.github.dev 
+https://super-duper-acorn-g4x54p4gq9w4c9g9q-8080.app.github.dev 
+
+NG: 
+3000 と 8080 で Codespace 名が違う 
+```
+
 ## ドメインモデル
 - Account（社員番号, 氏名, メール, パスワード, 権限）1:N RentalManage
 - BookMst（書籍タイトル, ISBN, 削除日時）1:N Stock
